@@ -1,4 +1,5 @@
 package com.techware.model;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @Entity
+@Builder(toBuilder = true)
 public class UserAccount {
     private @Id @GeneratedValue Integer id;
     private String email;
@@ -18,9 +20,4 @@ public class UserAccount {
     private String phoneNumber;
 
     UserAccount() {}
-
-    UserAccount(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
 }

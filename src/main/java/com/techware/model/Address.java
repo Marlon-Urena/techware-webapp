@@ -1,4 +1,5 @@
 package com.techware.model;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -6,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
+@Builder(toBuilder = true)
 public class Address {
     @Id
     @GeneratedValue

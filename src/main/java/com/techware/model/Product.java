@@ -3,7 +3,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.type.BigDecimalType;
 
 import java.math.BigDecimal;
 import java.sql.Clob;
