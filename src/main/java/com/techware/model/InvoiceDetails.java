@@ -21,6 +21,4 @@ public class InvoiceDetails {
     private BigDecimal itemsPrice;
 
     InvoiceDetails() { }
-
-
 }

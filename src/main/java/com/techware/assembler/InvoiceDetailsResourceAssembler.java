@@ -1,5 +1,6 @@
 package com.techware.assembler;
 
+import com.techware.controller.InvoiceDetailsController;
 import com.techware.model.InvoiceDetails;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -12,7 +13,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class InvoiceDetailsResourceAssembler implements RepresentationModelAssembler<InvoiceDetails,EntityModel<InvoiceDetails>> {
     @Override
     public EntityModel<InvoiceDetails> toModel(InvoiceDetails invoiceDetails) {
-        Link link = linkTo(methodOn(InvoiceDetails.class).one(invoiceDetails.getInvoiceDetailsId())).withSelfRel();
+        Link link = linkTo(methodOn(InvoiceDetailsController.class).one(invoiceDetails.getInvoiceDetailsId().getProductId(),invoiceDetails.getInvoiceDetailsId().getInvoiceId())).withSelfRel();
         return new EntityModel<InvoiceDetails>(invoiceDetails, link);
 
     }

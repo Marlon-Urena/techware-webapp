@@ -38,15 +38,16 @@ public class InvoiceDetailsController {
     }
 
     @PutMapping(path="/update")
-    public ResponseEntity<InvoiceDetails> replaceInvoiceDetails(@RequestBody InvoiceDetails newInvoiceDetails, @RequestParam(name="id") Integer id) {
-        InvoiceDetails updatedInvoiceDetails = repository.findByProductIdAndInvoiceId(i)
+    public ResponseEntity<InvoiceDetails> replaceInvoiceDetails(@RequestBody InvoiceDetails newInvoiceDetails, @RequestParam(name="productId") Integer productId, @RequestParam(name = "invoiceId") Integer invoiceId) {
+        InvoiceDetailsId invoiceDetailsId = new InvoiceDetailsId(productId, invoiceId);
+        InvoiceDetails updatedInvoiceDetails = repository.findByProductIdAndInvoiceId(invoiceDetailsId)
                 .map(invoiceDetails -> {
                     InvoiceDetails.InvoiceDetailsBuilder invoiceDetailsBuilder = newInvoiceDetails.toBuilder();
-                    invoiceDetails = invoiceDetailsBuilder.(new).build();
+                    invoiceDetails = invoiceDetailsBuilder.invoiceDetailsId(invoiceDetailsId).build();
                     return repository.save(invoiceDetails);
                 })
                 .orElseGet(() -> {
-                    newInvoiceDetails.setInvoiceDetailsId(id);
+                    newInvoiceDetails.setInvoiceDetailsId(invoiceDetailsId);
                     return repository.save(newInvoiceDetails);
                 });
         return ResponseEntity.ok(updatedInvoiceDetails);

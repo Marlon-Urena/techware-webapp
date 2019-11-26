@@ -25,7 +25,7 @@ public class ProductController {
         return repository.save(newProduct);
     }
 
-    @GetMapping(path="")
+    @GetMapping
     public EntityModel<Product> one(@RequestParam(value = "id") Integer id) {
         Product product = repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
         return assembler.toModel(product);
