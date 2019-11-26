@@ -1,7 +1,5 @@
 package com.techware.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,27 +9,25 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@AllArgsConstructor
-@Builder(toBuilder = true)
 public class Invoice {
     @Id
     @GeneratedValue
-    private Integer invoiceId;
+    private Integer id;
 
-    @ManyToOne(targetEntity = UserAccount.class, fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "buyer_id", nullable = false)
     @JsonIgnore
-    private Integer buyerId;
+    private Integer buyerID;
 
-    @ManyToOne(targetEntity = UserAccount.class, fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "seller_id", nullable = false)
     @JsonIgnore
-    private Integer sellerId;
+    private Integer sellerID;
 
-    @ManyToOne(targetEntity = Address.class, fetch = FetchType.LAZY, optional = false,  cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false,  cascade = CascadeType.REMOVE)
     @JoinColumn(name = "delivery_address_id", nullable = false)
     @JsonIgnore
-    private Integer deliveryAddressId;
+    private Integer deliveryAddressID;
 
     private LocalDateTime transactionDate;
     private LocalDateTime deliveryDate;

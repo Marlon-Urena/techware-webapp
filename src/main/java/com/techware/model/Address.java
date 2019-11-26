@@ -1,22 +1,23 @@
 package com.techware.model;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Data
 @Entity
+@Data
+@AllArgsConstructor
 @Builder(toBuilder = true)
+@Table(name = "address")
 public class Address {
     @Id
-    @GeneratedValue
-    private Integer id;
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Integer addressId;
 
-    @ManyToOne(fetch = FetchType.LAZY,optional = false, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_account_id", nullable = false)
-    @JsonIgnore
-    private Integer accountID;
+    @ManyToOne(targetEntity = UserAccount.class,fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
+    @JoinColumn(name="user_account_id")
+    private Integer userAccountId;
 
     private String streetAddress;
     private String postCode;
@@ -25,14 +26,4 @@ public class Address {
     private String country;
 
     Address() {}
-
-    Address(Integer accountID, String streetAddress, String postCode, String state, String city, String country) {
-        this.accountID = accountID;
-        this.streetAddress = streetAddress;
-        this.postCode = postCode;
-        this.state = state;
-        this.city = city;
-        this.country = country;
-
-    }
 }

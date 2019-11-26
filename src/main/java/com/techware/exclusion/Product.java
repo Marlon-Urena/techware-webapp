@@ -1,6 +1,4 @@
 package com.techware.model;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,16 +9,15 @@ import java.sql.Clob;
 
 @Data
 @Entity
-@AllArgsConstructor
-@Builder(toBuilder = true)
 public class Product {
 
     @Id
     @GeneratedValue
-    private Integer productId;
+    private Integer id;
 
-    @ManyToOne(targetEntity = UserAccount.class,fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "seller_id", nullable = false)
+    @JsonIgnore
     private Integer sellerId;
 
     private BigDecimal rentalPrice;

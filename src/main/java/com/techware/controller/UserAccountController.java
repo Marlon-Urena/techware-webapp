@@ -2,17 +2,17 @@ package com.techware.controller;
 
 import com.techware.exceptions.UserAccountNotFoundException;
 import com.techware.repository.UserAccountRepository;
-import com.techware.UserAccountResourceAssembler;
+import com.techware.assembler.UserAccountResourceAssembler;
 import com.techware.model.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("api/v1")
+@RestController @CrossOrigin(origins = "https://localhost:8443")
+@RequestMapping("/api/v1")
 public class UserAccountController {
-    @Autowired
+
     private final UserAccountRepository repository;
     private final UserAccountResourceAssembler assembler;
 
@@ -26,32 +26,33 @@ public class UserAccountController {
         return repository.save(newUser);
     }
 
-    @GetMapping(path="/useraccount/{id}")
-    public EntityModel<UserAccount> one(@PathVariable Integer id) {
+    @GetMapping(path="/useraccount")
+    public EntityModel<UserAccount> one(@RequestParam(value="id") Integer id) {
         UserAccount userAccount = repository.findById(id).orElseThrow(() -> new UserAccountNotFoundException(id));
         return assembler.toModel(userAccount);
     }
 
-    @PostMapping(path="/login")
-    public ResponseEntity<UserAccount> userAccountLogin() {
-        //Will be utilizing authentication tokens here
-    }
+//    @PostMapping(path="/login")
+//    public ResponseEntity<UserAccount> userAccountLogin() {
+//        //Will be utilizing authentication tokens here
+//    }
 
-    @DeleteMapping(path="/closeaccount/{id}")
-    public ResponseEntity<UserAccount> deleteUserAccount(@RequestBody UserAccount userAccountToDelete, @PathVariable Integer id) {
+    @DeleteMapping(path="/closeaccount")
+    public ResponseEntity<UserAccount> deleteUserAccount(@RequestParam(name="id") Integer id) {
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(path="/myaccount/{id}")
-    public ResponseEntity<UserAccount> replaceUserAccount(@RequestBody UserAccount newUserAccount, @PathVariable Integer id) {
+    @PutMapping(path="/myaccount")
+    public ResponseEntity<UserAccount> replaceUserAccount(@RequestBody UserAccount newUserAccount, @RequestParam(name="id") Integer id) {
         UserAccount updatedUserAccount = repository.findById(id)
                 .map(userAccount -> {
-                    userAccount = newUserAccount.toBuilder().build();
+                    UserAccount.UserAccountBuilder userAccountBuilder = newUserAccount.toBuilder();
+                    userAccount = userAccountBuilder.userAccountId(id).build();
                     return repository.save(userAccount);
                 })
                 .orElseGet(() -> {
-                    newUserAccount.setId(id);
+                    newUserAccount.setUserAccountId(id);
                     return repository.save(newUserAccount);
                 });
         return ResponseEntity.ok(updatedUserAccount);

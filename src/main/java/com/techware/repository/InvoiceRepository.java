@@ -1,4 +1,7 @@
 package com.techware.repository;
 
-public interface InvoiceRepository {
+import com.techware.model.Invoice;
+import org.springframework.data.repository.CrudRepository;
+
+public interface InvoiceRepository extends CrudRepository<Invoice,Integer> {
 }
