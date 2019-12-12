@@ -15,6 +15,6 @@ public class ProductResourceAssembler implements RepresentationModelAssembler<Pr
     @Override
     public EntityModel<Product> toModel(Product product) {
         Link link = linkTo(methodOn(ProductController.class).one(product.getProductId())).withSelfRel();
-        return new EntityModel<Product>(product, link);
+        return new EntityModel<>(product, link);
     }
 }

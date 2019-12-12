@@ -1,55 +1,50 @@
 package com.techware.controller;
 
-import com.techware.assembler.ProductResourceAssembler;
-import com.techware.exceptions.ProductNotFoundException;
 import com.techware.model.Product;
-import com.techware.repository.ProductRepository;
+import com.techware.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController @CrossOrigin(origins = "https://localhost:8443")
-@RequestMapping("/api/v1/product")
+@RestController
+@CrossOrigin(origins = "https://localhost:8443")
+@RequestMapping("/api/v1")
 public class ProductController {
-    private final ProductRepository repository;
-    private final ProductResourceAssembler assembler;
 
-    ProductController(ProductRepository repository, ProductResourceAssembler assembler) {
-        this.repository = repository;
-        this.assembler = assembler;
+    @Autowired
+    private ProductService productService;
+
+    @PostMapping(path="/product/sell")
+    public ResponseEntity<Product> addProduct(@RequestBody Product newProduct) {
+        return productService.addProduct(newProduct);
     }
 
-    @PostMapping(path="/sell")
-    public Product addProduct(@RequestBody Product newProduct) {
-        return repository.save(newProduct);
+    @GetMapping(path="/product")
+    public EntityModel<Product> one(@RequestParam(value = "productId") Integer productId) {
+        return productService.getProductById(productId);
     }
 
-    @GetMapping
-    public EntityModel<Product> one(@RequestParam(value = "id") Integer id) {
-        Product product = repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-        return assembler.toModel(product);
+    @GetMapping(path = "/search")
+    public CollectionModel<EntityModel<Product>> query() {
+        return productService.getAllProducts();
     }
 
-    @PutMapping(path="/update")
-    public ResponseEntity<Product> replaceProduct(@RequestBody Product newProduct, @RequestParam(name = "id") Integer id) {
-        Product updatedProduct = repository.findById(id)
-                .map(product -> {
-                    Product.ProductBuilder productBuilder = newProduct.toBuilder();
-                    product = productBuilder.productId(id).build();
-                    return repository.save(product);
-                })
-                .orElseGet(() -> {
-                    newProduct.setProductId(id);
-                    return repository.save(newProduct);
-                });
-        return ResponseEntity.ok(updatedProduct);
+    @GetMapping(path = "/myaccount/inventory")
+    public CollectionModel<EntityModel<?>> allProductsFromUserAccount(@RequestParam(value = "useraccountId") Integer userAccountId) {
+        return productService.getAllProductsByUserAccountId(userAccountId);
     }
 
-    @DeleteMapping(path="/remove")
-    public ResponseEntity<Product> deleteProduct(@RequestParam(name="id")Integer id) {
-        repository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping(path="/product/update")
+    public ResponseEntity<Product> updateProduct(@RequestBody Product newProduct, @RequestParam(name = "productId") Integer productId) {
+       return productService.updateProductById(newProduct, productId);
+    }
+
+    @DeleteMapping(path="/product/remove")
+    public ResponseEntity<Product> deleteProduct(@RequestParam(name="productId")Integer productId) {
+        return productService.deleteProductById(productId);
     }
 }
 

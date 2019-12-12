@@ -1,11 +1,10 @@
 package com.techware.controller;
 
-import com.techware.exceptions.UserAccountNotFoundException;
-import com.techware.repository.UserAccountRepository;
-import com.techware.assembler.UserAccountResourceAssembler;
 import com.techware.model.UserAccount;
+import com.techware.services.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,51 +12,41 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 public class UserAccountController {
 
-    private final UserAccountRepository repository;
-    private final UserAccountResourceAssembler assembler;
+    @Autowired
+    private UserAccountService userAccountService;
 
-    UserAccountController(UserAccountRepository repository, UserAccountResourceAssembler assembler) {
-        this.repository = repository;
-        this.assembler = assembler;
+    @PostMapping(path="/signup")
+    public ResponseEntity<UserAccount> newUserAccount (@RequestBody UserAccount newUser) {
+        return userAccountService.addUserAccount(newUser);
     }
 
-    @PostMapping(path="/signup") // Map ONLY POST Requests
-    public UserAccount newUserAccount (@RequestBody UserAccount newUser) {
-        return repository.save(newUser);
+    @GetMapping(path="/myaccount")
+    public EntityModel<UserAccount> one(@RequestParam(value="useraccountId") Integer userAccountId) {
+        return userAccountService.findByUserAccountId(userAccountId);
     }
 
-    @GetMapping(path="/useraccount")
-    public EntityModel<UserAccount> one(@RequestParam(value="id") Integer id) {
-        UserAccount userAccount = repository.findById(id).orElseThrow(() -> new UserAccountNotFoundException(id));
-        return assembler.toModel(userAccount);
+    @PostMapping(path="/login")
+    public ResponseEntity<UserAccount> userAccountLogin(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password) {
+        return userAccountService.findByUsernameAndPassword(username,password);
     }
 
-//    @PostMapping(path="/login")
-//    public ResponseEntity<UserAccount> userAccountLogin() {
-//        //Will be utilizing authentication tokens here
-//    }
-
-    @DeleteMapping(path="/closeaccount")
-    public ResponseEntity<UserAccount> deleteUserAccount(@RequestParam(name="id") Integer id) {
-        repository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(path="/myaccount/closeaccount")
+    public ResponseEntity<UserAccount> deleteUserAccount(@RequestParam(name="useraccountId") Integer id) {
+        return userAccountService.deleteUserAccountById(id);
     }
 
-    @PutMapping(path="/myaccount")
-    public ResponseEntity<UserAccount> replaceUserAccount(@RequestBody UserAccount newUserAccount, @RequestParam(name="id") Integer id) {
-        UserAccount updatedUserAccount = repository.findById(id)
-                .map(userAccount -> {
-                    UserAccount.UserAccountBuilder userAccountBuilder = newUserAccount.toBuilder();
-                    userAccount = userAccountBuilder.userAccountId(id).build();
-                    return repository.save(userAccount);
-                })
-                .orElseGet(() -> {
-                    newUserAccount.setUserAccountId(id);
-                    return repository.save(newUserAccount);
-                });
-        return ResponseEntity.ok(updatedUserAccount);
+    @PutMapping(path="/myaccount/account-information")
+    public ResponseEntity<UserAccount> replaceUserAccount(@RequestBody UserAccount newUserAccount, @RequestParam(name="useraccountId") Integer id) {
+        return userAccountService.updateUserAccountById(newUserAccount, id);
     }
 
+    @PostMapping(path = "/password-validate")
+    public ResponseEntity<UserAccount> validatePassword(@RequestParam(name = "password")String password) {
+        if(userAccountService.validatePassword(password)) {
+            return ResponseEntity.status(HttpStatus.CONTINUE).build();
+        }
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
 }
 /*
 -I may be going about this web application incorrectly.

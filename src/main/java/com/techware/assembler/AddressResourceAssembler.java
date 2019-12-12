@@ -2,6 +2,7 @@ package com.techware.assembler;
 
 import com.techware.controller.AddressController;
 import com.techware.model.Address;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -17,6 +18,5 @@ public class AddressResourceAssembler implements RepresentationModelAssembler<Ad
         return new EntityModel<Address>(address, link);
 //                linkTo(methodOn(UserAccountController.class).one(userAccount.getId())).withSelfRel());
         //linkTo(methodOn(UserAccountController.class).deleteUserAccount(userAccount.getId())).withRel("user_Account"));
-
     }
 }

@@ -1,51 +1,38 @@
 package com.techware.controller;
 
-import com.techware.assembler.InvoiceResourceAssembler;
-import com.techware.exceptions.InvoiceNotFoundException;
 import com.techware.model.Invoice;
-import com.techware.repository.InvoiceRepository;
+import com.techware.model.InvoiceCreationRequest;
+import com.techware.services.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController @CrossOrigin(origins = "https://localhost:8443")
-@RequestMapping("/api/v1/invoice")
+@RequestMapping("/api/v1")
 public class InvoiceController {
 
-    private final InvoiceRepository repository;
-    private final InvoiceResourceAssembler assembler;
+    @Autowired
+    private InvoiceService invoiceService;
 
-    public InvoiceController (InvoiceRepository repository, InvoiceResourceAssembler assembler) {
-        this.repository = repository;
-        this.assembler = assembler;
+    @GetMapping(path = "/invoice")
+    public EntityModel<Invoice> one(@RequestParam(value = "invoiceId") Integer invoiceId) {
+        //return repository.findById(id);
+        return invoiceService.getInvoiceById(invoiceId);
+    }
+    @GetMapping(path="/myaccount/invoices")
+    public CollectionModel<EntityModel<Invoice>> allInvoicesFromBuyerId(@RequestParam(value = "useraccountId")Integer userAccountId){
+        return invoiceService.getAllInvoicesByBuyerId(userAccountId);
     }
 
-    @GetMapping(path="")
-    public EntityModel<Invoice> one(@RequestParam(value = "id") Integer id) {
-        Invoice invoice = repository.findById(id).orElseThrow(() -> new InvoiceNotFoundException(id));
-        return assembler.toModel(invoice);
+    @PostMapping(path="/checkout")
+    public ResponseEntity<Invoice> addInvoice(@RequestBody InvoiceCreationRequest newInvoice) {
+        return invoiceService.createInvoice(newInvoice);
     }
 
-    @GetMapping(path="")
-
-    @PostMapping(path="/add")
-    public Invoice addInvoice(@RequestBody Invoice newInvoice) {
-            return repository.save(newInvoice);
-    }
-
-    @PutMapping(path="/update")
-    public ResponseEntity<Invoice> replaceInvoice(@RequestBody Invoice newInvoice, @RequestParam(name="id") Integer id) {
-        Invoice updatedInvoice = repository.findById(id)
-                .map(invoice -> {
-                    Invoice.InvoiceBuilder invoiceBuilder = newInvoice.toBuilder();
-                    invoice = invoiceBuilder.invoiceId(id).build();
-                    return repository.save(invoice);
-                })
-                .orElseGet(() -> {
-                    newInvoice.setInvoiceId(id);
-                    return repository.save(newInvoice);
-                });
-        return ResponseEntity.ok(updatedInvoice);
+    @PutMapping(path="/invoice/update")
+    public ResponseEntity<Invoice> replaceInvoice(@RequestBody Invoice newInvoice, @RequestParam(name="invoiceId") Integer invoiceId) {
+        return invoiceService.updateInvoiceById(newInvoice, invoiceId);
     }
 }

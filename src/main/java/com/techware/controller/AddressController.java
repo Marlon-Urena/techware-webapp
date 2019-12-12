@@ -1,61 +1,48 @@
 package com.techware.controller;
 
-import com.techware.assembler.AddressResourceAssembler;
-import com.techware.exceptions.AddressNotFoundException;
 import com.techware.model.Address;
-import com.techware.repository.AddressRepository;
+import com.techware.services.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController @CrossOrigin(origins = "https://localhost:8443")
-@RequestMapping("/api/v1/address")
+@RequestMapping("/api/v1")
 public class AddressController {
 
     @Autowired
-    private final AddressRepository repository;
+    private final AddressService addressService;
 
-    @Autowired
-    private final AddressResourceAssembler assembler;
-
-
-
-    public AddressController(AddressRepository repository, AddressResourceAssembler assembler) {
-        this.repository = repository;
-        this.assembler = assembler;
+    public AddressController(AddressService addressService) {
+        this.addressService = addressService;
     }
 
-    @GetMapping
-    public EntityModel<Address> one(@RequestParam(value = "id") Integer id) {
-        Address address = repository.findById(id).orElseThrow(() -> new AddressNotFoundException(id));
-        return assembler.toModel(address);
+    @GetMapping(path = "/address")
+    public EntityModel<Address> one(@RequestParam(value = "addressId") Integer addressId) {
+        return addressService.getAddressById(addressId);
     }
 
-    @PostMapping
-    public Address newAddress(@RequestBody Address newAddress) {
-        return repository.save(newAddress);
+/*
+    @GetMapping(path= "/myaccount/addresses")
+    public CollectionModel<EntityModel<Address>> allAddressesFromUserAccount(@RequestParam(value = "userAccountId")Integer userAccountId) {
+        return addressService.getAllAddressesByUserAccountId(userAccountId);
+    }
+*/
+
+    @PostMapping(path = "/myaccount/address")
+    public ResponseEntity<Address> newAddress(@RequestBody Address newAddress) {
+        return addressService.addAddress(newAddress);
     }
 
-    @PutMapping
-    public ResponseEntity<Address> updateAddress(@RequestBody Address newAddress, @RequestParam(name="id") Integer id) {
-        Address updatedAddress = repository.findById(id)
-                .map(address -> {
-                    Address.AddressBuilder addressBuilder = newAddress.toBuilder();
-                    address = addressBuilder.build();
-                    return repository.save(address);
-                })
-                .orElseGet(() -> {
-                    newAddress.getAddressId();
-                    return repository.save(newAddress);
-                });
-        return ResponseEntity.ok(updatedAddress);
+    @PutMapping(path = "/myaccount/address")
+    public ResponseEntity<Address> updateAddress(@RequestBody Address newAddress, @RequestParam(name="addressId") Integer addressId) {
+        return addressService.updateAddressById(newAddress, addressId);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Address> deleteAddress(@PathVariable Integer id) {
-        repository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(path = "/myaccount/address")
+    public ResponseEntity<Address> deleteAddress(@RequestParam(name = "addressId") Integer addressId) {
+        return addressService.deleteAddressById(addressId);
     }
 
 }

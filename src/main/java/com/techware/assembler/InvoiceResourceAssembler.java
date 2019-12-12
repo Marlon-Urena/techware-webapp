@@ -1,8 +1,8 @@
 package com.techware.assembler;
 
 import com.techware.controller.InvoiceController;
+import com.techware.controller.InvoiceDetailsController;
 import com.techware.model.Invoice;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -15,6 +15,7 @@ public class InvoiceResourceAssembler implements RepresentationModelAssembler<In
     @Override
     public EntityModel<Invoice> toModel(Invoice invoice) {
         Link link = linkTo(methodOn(InvoiceController.class).one(invoice.getInvoiceId())).withSelfRel();
-        return new EntityModel<Invoice>(invoice, link);
+        Link invoiceDetailsLink = linkTo(methodOn(InvoiceDetailsController.class).allInvoiceDetailsByInvoiceId(invoice.getInvoiceId())).withRel("invoice-details");
+        return new EntityModel<>(invoice, link,invoiceDetailsLink);
     }
 }
