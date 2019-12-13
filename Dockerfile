@@ -1,5 +1,7 @@
-FROM azul/zulu-openjdk-alpine:8
+FROM adoptopenjdk:11-jre-hotspot
+LABEL maintainer = marlymazing
 VOLUME /tmp
-EXPOSE 8080
-COPY target/commons-csc430-webapp-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT java -Djava.security.egd=file:/dev/./urandom -jar /app.jar
+EXPOSE 8443
+ARG JAR_FILE=target/commons-csc430-webapp-0.0.1-SNAPSHOT.jar
+ADD ${JAR_FILE} commons-csc430-webapp.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/commons-csc430-webapp.jar"]
